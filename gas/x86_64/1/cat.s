@@ -29,8 +29,8 @@ _start:
 	popq	%rbx
 	popq	%rbp
 .exit:
-	movq $60, %rax # syscall_id
-	movq $0,  %rdi # return code
+	movb %al, %dil # return code
+	movb $60, %al  # syscall_id = 60 (exit)
 	syscall
 
 	.globl	buf
@@ -40,11 +40,4 @@ _start:
 	.size	buf, 131072
 buf:
 	.zero	131072
-
-# gcc -c exit.s && ld exit.o -o cat #&& ./cat
-
-#rax rdi
-#60      rax = 60
-#    1   rdi = 1
-#        syscall
 
