@@ -5,28 +5,27 @@
 _start:
 	pushq	%rbp
 	leaq	buf(%rip), %rbp
-	pushq	%rbx
 	pushq	%rdx
+	xorq	%rdi, %rdi    # rdi = 0
+	xorq	%rax, %rax    # rax = 0
 	movq	%rbp, %rsi    # rsi = rbp (void* buf)
 .loop1:
 	movl	$131072, %edx # edx = 131072
 	xorl	%edi, %edi    # edi = 0 (fd)
-	xorq	%rax, %rax    # syscall_id = 0 (read)
+	xorl	%eax, %eax    # syscall_id = 0 (read)
 	syscall               # rax = read(edi, rsi, edx);
-	movq	%rax, %rbx    # rbx = rax
 	testl	%eax, %eax    # eax == 0
-	je	.L1           # if (eax == 0) goto .L1
+	je	.finish       # if (eax == 0) goto .finish
 
-	movslq	%eax, %rdx    # rdx = SignExtend(eax) (int read_count)
-	movl	$1, %edi      # edi = 1 (fd)
-	movq	%rdi, %rax    # syscall_id = 1 (write)
+	movl	%eax, %edx    # edx = eax
+	incl	%edi          # edi = 1 (fd)
+	movl	%edi, %eax    # syscall_id = 1 (write)
 	syscall               # rax = write(edi, rsi, rdx)
-	cmpl	%eax, %ebx    # eax == ebx
-	je	.loop1        # if (eax == ebx) goto .loop1
-	movl	$1, %eax      # eax = 1
-.L1:
+	cmpl	%eax, %edx    # eax == edx
+	je	.loop1        # if (eax == edx) goto .loop1
+	movb	$1, %al       # al = 1
+.finish:
 	popq	%rdx
-	popq	%rbx
 	popq	%rbp
 .exit:
 	movb %al, %dil # return code
