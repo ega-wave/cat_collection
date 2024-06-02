@@ -26,8 +26,11 @@ cat : cat.o
 cat.o : cat.s
 	gcc -Os -Wa,--64 -c cat.s -o cat.o
 
+test :
+	bash test.sh
+
 clean :
 	rm cat cat.o
 
-.PHONY: clean
+.PHONY: test clean
 
