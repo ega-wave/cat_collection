@@ -10,10 +10,10 @@
 	.globl _start
 	.type  _start, @function
 _start:
-	leaq	buf(%rip), %rsi
 	pushq	%rdi
 	pushq	%rsi
 	pushq	%rdx
+	leaq	buf(%rip), %rsi
 	xorl	%edi, %edi    # rdi = 0
 	xorl	%eax, %eax    # rax = 0
 /*
