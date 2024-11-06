@@ -11,6 +11,8 @@
 	.type  _start, @function
 _start:
 	leaq	buf(%rip), %rsi
+	pushq	%rdi
+	pushq	%rsi
 	pushq	%rdx
 	xorl	%edi, %edi    # rdi = 0
 	xorl	%eax, %eax    # rax = 0
@@ -70,6 +72,8 @@ wc: write_count
 
 .finish:
 	popq	%rdx
+	popq	%rsi
+	popq	%rdi
 .exit:
 	movb %al, %dil # return code
 	movb $60, %al  # syscall_id = 60 (exit)
