@@ -16,15 +16,17 @@ _start:
 	xorq	%rdi, %rdi    # rdi = 0
 	xorq	%rax, %rax    # rax = 0
 	movq	%rbp, %rsi    # rsi = rbp (void* buf)
-# rax	rbx	rcx	rdx	rdi	rsi	rbp	rsp
-# 						r	
-# 						wb	
-# 			r				
-# 				ru/w0			
-# ru/w0							
-# 					wb	rb	
-# b = (void*)buf
-# u = (uninitialized value)
+/*
+rax	rdx	rdi	rsi	rbp
+				u/
+				/b
+	u/			
+		u/0		
+u/0				
+			/b	b/
+b : (void*)buf
+u : (uninitialized value)
+*/
 
 .loop1:
 .read:
@@ -34,16 +36,18 @@ _start:
 	syscall               # rax = read(edi, rsi, edx);
 	testl	%eax, %eax    # eax == 0
 	je	.finish       # if true goto .finish
-# rax	rbx	rcx	rdx	rdi	rsi	rbp	rsp
-# 			wc1				
-# 				r0/w0			
-# r0/w0							
-# wc2			rc1	r0	rb		
-# rc2							
-#
-# b = (void*)buf
-# c1= buf_size = 131072
-# c2= read_count
+/*
+rax	rdx	rdi	rsi	rbp
+	/13			
+		u/0		
+u/0				
+/rc	13/	0/	b/	
+rc/				
+
+b : (void*)buf
+13: buf_size(=131072)
+rc: read_count
+*/
 
 .write:
 	movl	%eax, %edx    # edx = eax
@@ -53,18 +57,19 @@ _start:
 	cmpl	%eax, %edx    # eax == edx
 	je	.loop1        # if true goto .loop1
 	movb	$1, %al       # else al = 1 (and fall through)
-# rax	rbx	rcx	rdx	rdi	rsi	rbp	rsp
-# rc2			wc2				
-# 				r0/w1			
-# w1				r1			
-# wc3			rc2	r1	rb		
-# rc3			rc2				
-# w1							
-#
-# b = (void*)buf
-# c1= buf_size = 131072
-# c2= read_count
-# c3= write_count
+/*
+rax	rdx	rdi	rsi	rbp
+rc/	/rc			
+		0/1		
+/1		1/		
+/wc	rc/	1/	b/	
+wc/	rc/			
+/1				
+
+b : (void*)buf
+rc: read_count
+wc: write_count
+*/
 
 .finish:
 	popq	%rdx
