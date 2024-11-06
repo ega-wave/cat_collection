@@ -10,20 +10,17 @@
 	.globl _start
 	.type  _start, @function
 _start:
-	pushq	%rbp
-	leaq	buf(%rip), %rbp
+	leaq	buf(%rip), %rsi
 	pushq	%rdx
 	xorl	%edi, %edi    # rdi = 0
 	xorl	%eax, %eax    # rax = 0
-	movq	%rbp, %rsi    # rsi = rbp (void* buf)
 /*
-rax	rdx	rdi	rsi	rbp
-				u/
-				/b
-	u/			
-		u/0		
-u/0				
-			/b	b/
+rax	rdx	rdi	rsi
+			/b
+	u/
+		u/0
+u/0
+			/b
 b : (void*)buf
 u : (uninitialized value)
 */
@@ -37,11 +34,11 @@ u : (uninitialized value)
 	testl	%eax, %eax    # eax == 0
 	je	.finish       # if true goto .finish
 /*
-rax	rdx	rdi	rsi	rbp
-	/13			
-		u/0		
-u/0				
-/rc	13/	0/	b/	
+rax	rdx	rdi	rsi
+	/13
+		u/0
+u/0
+/rc	13/	0/	b/
 rc/				
 
 b : (void*)buf
@@ -58,13 +55,13 @@ rc: read_count
 	je	.loop1        # if true goto .loop1
 	movb	$1, %al       # else al = 1 (and fall through)
 /*
-rax	rdx	rdi	rsi	rbp
-rc/	/rc			
-		0/1		
-/1		1/		
-/wc	rc/	1/	b/	
-wc/	rc/			
-/1				
+rax	rdx	rdi	rsi
+rc/	/rc
+		0/1
+/1		1/
+/wc	rc/	1/	b/
+wc/	rc/
+/1
 
 b : (void*)buf
 rc: read_count
@@ -73,7 +70,6 @@ wc: write_count
 
 .finish:
 	popq	%rdx
-	popq	%rbp
 .exit:
 	movb %al, %dil # return code
 	movb $60, %al  # syscall_id = 60 (exit)
