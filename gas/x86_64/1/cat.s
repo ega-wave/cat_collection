@@ -13,8 +13,8 @@ _start:
 	pushq	%rbp
 	leaq	buf(%rip), %rbp
 	pushq	%rdx
-	xorq	%rdi, %rdi    # rdi = 0
-	xorq	%rax, %rax    # rax = 0
+	xorl	%edi, %edi    # rdi = 0
+	xorl	%eax, %eax    # rax = 0
 	movq	%rbp, %rsi    # rsi = rbp (void* buf)
 /*
 rax	rdx	rdi	rsi	rbp
