@@ -78,6 +78,7 @@ wc: write_count
 	movb %al, %dil # return code
 	movb $60, %al  # syscall_id = 60 (exit)
 	syscall        # exit(al) # 0 or 1
+	.size   _start, .-_start
 
 	.globl	buf
 	.bss
