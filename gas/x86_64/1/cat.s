@@ -14,14 +14,12 @@ _start:
 	pushq	%rsi
 	pushq	%rdx
 	leaq	buf(%rip), %rsi
-	xorl	%edi, %edi    # rdi = 0
-	xorl	%eax, %eax    # rax = 0
+				/* fall through */
 /*
 rax	rdx	rdi	rsi
-			/b
+			u/
+		u/
 	u/
-		u/0
-u/0
 			/b
 b : (void*)buf
 u : (uninitialized value)
