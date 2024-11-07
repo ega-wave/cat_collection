@@ -10,8 +10,8 @@
 	.globl _start
 	.type  _start, @function
 _start:
-	pushq	%rdi
 	pushq	%rsi
+	pushq	%rdi
 	pushq	%rdx
 	leaq	buf(%rip), %rsi
 				/* fall through */
@@ -70,8 +70,8 @@ wc: write_count
 
 .finish:
 	popq	%rdx
-	popq	%rsi
 	popq	%rdi
+	popq	%rsi
 .exit:
 	movb %al, %dil # return code
 	movb $60, %al  # syscall_id = 60 (exit)
