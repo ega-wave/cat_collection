@@ -9,6 +9,7 @@
 	.section	.text.startup,"ax",@progbits
 	.globl _start
 	.type  _start, @function
+	.p2align 4
 _start:
 	pushq	%rdi
 	pushq	%rbx
@@ -29,6 +30,7 @@ b : (void*)buf
 u : (uninitialized value)
 */
 
+	.p2align 4
 .loop1:
 .read:
 	movl	$131072, %edx # edx = 131072
@@ -75,6 +77,7 @@ wc: write_count
 .exit1:
 	movl	%ebx, %eax	/* eax = 1 */
 
+	.p2align 4
 .exit0:
 .finish:
 	popq	%rdx
