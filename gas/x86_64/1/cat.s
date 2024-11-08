@@ -11,7 +11,7 @@
 	.type  _start, @function
 	.p2align 4
 _start:
-	pushq	%rdi
+/*	pushq	%rdi */
 	pushq	%rbx
 	pushq	%rsi
 	pushq	%rdx
@@ -20,7 +20,6 @@ _start:
 				/* fall through */
 /*
 rax	rbx	rdx	rdi	rsi
-			u/
 	u/
 				u/
 		u/
@@ -87,7 +86,7 @@ wc: write_count
 	movl %eax,%edi # return code
 	movb $60, %al  # syscall_id = 60 (exit)
 	syscall        # exit(al) # 0 or 1
-	popq	%rdi
+/*	popq	%rdi */
 /*
 rax	rbx	rdx	rdi	rsi
 0/			/0
