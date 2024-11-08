@@ -10,18 +10,18 @@
 	.globl _start
 	.type  _start, @function
 _start:
+	pushq	%rdi
 	pushq	%rbx
 	pushq	%rsi
-	pushq	%rdi
 	pushq	%rdx
 	leaq	buf(%rip), %rsi
 	movl	$1, %ebx	/* ebx = 1 */
 				/* fall through */
 /*
 rax	rbx	rdx	rdi	rsi
+			u/
 	u/
 				u/
-			u/
 		u/
 				/b
 	/1
@@ -36,7 +36,7 @@ u : (uninitialized value)
 	xorl	%eax, %eax    # syscall_id = 0 (read)
 	syscall               # rax = read(edi, rsi, edx);
 	testl	%eax, %eax    # eax == 0
-	je	.exit0        # if true goto .exit0
+	je	.exit0        # if true goto .exit0 (with eax == 0)
 				/* else fall through */
 /*
 rax	rbx	rdx	rdi	rsi
@@ -73,17 +73,13 @@ wc: write_count
 */
 
 .exit1:
-	movl	$1, %eax	/* eax = 1 */
-	jmp	.finish
+	movl	%ebx, %eax	/* eax = 1 */
+
 .exit0:
-	xorl	%eax, %eax	/* eax = 0 */
-				/* fall through */
 .finish:
 	popq	%rdx
-	popq	%rdi
 	popq	%rsi
 	popq	%rbx
-	pushq	%rdi
 .exit:
 	movl %eax,%edi # return code
 	movb $60, %al  # syscall_id = 60 (exit)
