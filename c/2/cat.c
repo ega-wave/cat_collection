@@ -8,24 +8,15 @@
 /* plain-cat(1) - copy stdin to stdout */
 /* using fread(3)/fwrite(3)  */
 
-#include <stdio.h>  // for fputs(), fprintf(), fread(), fwrite()
-#include <stdlib.h> // for calloc()
-#include <errno.h>  // for errno
-#include <string.h> // for strerror()
+#include <stdio.h>  // for fprintf(), fread(), fwrite()
 
-const int BUF_SIZE = 128*1024;
+#define BUF_SIZE (128*1024)
+char buf[BUF_SIZE];
 
 int main()
 {
   int count_read;
   int count_write;
-
-  // initialize : create buffer
-  void* buf = calloc(BUF_SIZE, 1);
-  if (buf == NULL) {
-    fputs(strerror(errno), stderr);
-    exit(1);
-  }
 
   while (1)
   { // read
@@ -37,7 +28,7 @@ int main()
     if (count_write != count_read)
     {
       fprintf(stderr, "plain-cat : write error : read=%d, write=%d\n", count_read, count_write);
-      exit(1);
+      return 1;
     }
   }
 
