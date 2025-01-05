@@ -5,17 +5,14 @@
 
 all : cat
 
-cat : cat.o
-	ld cat.o -o cat
-
-cat.o : cat.s
-	gcc -Os -Wa,--64 -c cat.s -o cat.o
+cat : cat.s
+	gcc -s -nostdlib -Wa,--64 cat.s -o cat
 
 test :
 	bash test.sh
 
 clean :
-	rm cat cat.o
+	rm cat
 
 .PHONY: test clean
 
