@@ -5,8 +5,8 @@
 
 all : cat
 
-cat : cat.s
-	gcc -s -nostdlib -Wa,--64 cat.s -o cat
+cat : cat.gas
+	gcc -s -nostdlib -Wa,--64 -x assembler cat.gas -o cat
 
 test :
 	bash test.sh
