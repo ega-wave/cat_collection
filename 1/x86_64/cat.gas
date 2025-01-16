@@ -62,10 +62,10 @@ rc: read_count
 */
 
 .write:
+  movl %eax, %edx # edx = eax
   movl %ebx, %eax # syscall_id = 1 (write)
   movl %ebx, %edi # edi = 1 (fd)
 #  leaq buf(%rip), %rsi # already set in .init
-  movl %eax, %edx # edx = eax
   syscall         # rax = write(edi, rsi, rdx)
   cmpl %eax, %edx # eax == edx
   je .loop1       # if true goto .loop1
