@@ -22,7 +22,8 @@ _start:
   pushq %rsi
   pushq %rdx
   leaq buf(%rip), %rsi # rsi = buf
-  movl $1, %ebx        # ebx = 1
+  xorl %ebx, %ebx
+  incl %ebx       # ebx = 1
 
 /*
 rax  rbx  rdx  rdi  rsi
@@ -88,7 +89,6 @@ wc: write_count
 .exit1:
   movl %ebx, %eax # eax = 1
 
-.p2align 4
 .exit0:
 .finish:
   popq %rdx
