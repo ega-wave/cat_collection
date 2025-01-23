@@ -1,129 +1,123 @@
-	.file	"cat.c"
-	.text
-	.section	.text.startup,"ax",@progbits
-
+.file "cat.c"
+.text
+.section .text.startup,"ax",@progbits
 
 /*
 int _start()
 {
 */
-	.globl	_start
-	.type	_start, @function
-/*        .p2align 4*/
+.globl _start
+.type  _start, @function
+
 _start:
 .init:
-	pushq	%rbp
-	leaq	write_buf(%rip), %rbp /* rbp = write_buf */
-	pushq	%rbx
-	pushq	%rcx
-	xorl	%ebx, %ebx
-	incl	%ebx
-	
+  pushq %rbp
+  leaq write_buf(%rip), %rbp # rbp = write_buf
+  pushq %rbx
+  pushq %rcx
+  xorl %ebx, %ebx
+  incl %ebx       # ebx = 1
+ 
 /*
-rax	rbx	rcx	rdx	rdi	rsi	rbp
-	1	rc	count		buf	write_buf
-						u/
-						/wb
-	u/					
-		u/				
+rax rbx rcx rdx rdi rsi rbp
+    1   rc  cnt     buf wb
+                        u/
+                        /wb
+    u/
+        u/
+    u/
+    0/1
 */
 
 .loop:
-  .read:
-/*        .p2align 4*/
-	movl	$131072, %edx /* edx = 131072 */
-	leaq	read_buf(%rip), %rsi /* rsi = read_buf */
-	xorl	%edi, %edi    /* edi = 0 */
-        xorl    %eax, %eax    /* syscall_id = 0 (read) */
-        syscall               /* rax = read(edi, rsi, edx); */
+.read:
+  movl $131072, %edx # edx = 131072
+  leaq read_buf(%rip), %rsi # rsi = read_buf
+  xorl %edi, %edi    # edi = 0
+  xorl %eax, %eax    # syscall_id = 0 (read)
+  syscall            # rax = read(edi, rsi, edx);
 
-	testl	%eax, %eax    /* eax == 0 ? */
-	je	.exit0        /* if true, then goto .exit0 */
-                              /* else, fall-through */
+  testl %eax, %eax   # eax == 0
+  je .exit0          # if true, then goto .exit0
+                     # else, fall-through
 /*
-rax	rbx	rcx	rdx	rdi	rsi	rbp
-	1	rc	count		buf	write_buf
-			/13			
-					/rb	
-				u/0		
-u/0						
-0/rc			13/	0/	rb/	
-rc/						
+rax  rbx rcx rdx rdi rsi rbp
+     1   rc  cnt     buf wb
+             /13
+                     /rb
+                 u/0
+u/0
+0/rc         13/ 0/  rb/
+rc/
 */
 
-  .memcpy:
-/*        .p2align 4*/
-	movq	%rbp, %rdi    /* rdi = rbp(=write_buf) */
-	movl	%eax, %ecx    /* ecx = eax(=read_count) */
-	rep movsb             /* *rdi++ = *rsi++ */
+.memcpy:
+  movq %rbp, %rdi # rdi = rbp(=write_buf)
+  movl %eax, %ecx # ecx = eax(=read_count)
+  rep movsb       # *rdi++ = *rsi++ for ecx
 /*
-rax	rbx	rcx	rdx	rdi	rsi	rbp
-	1	rc	count		buf	write_buf
-				/wb		wb/
-rc/		/rc				
-		rc/rc		wb/	rb/	
+rax  rbx rcx   rdx rdi rsi rbp
+     1   rc    cnt     buf wb
+                   /wb     wb/
+rc/      /rc
+         rc/rc     wb/ rb/
 */
 
-  .write:
-/*        .p2align 4*/
-	movl	%eax, %edx    /* edx = eax(=read_count) */
-	movq	%rbp, %rsi    /* rsi = rbp(=write_buf) */
-	movl	%ebx, %edi    /* edi = 1 */
-	movl	%ebx, %eax    /* eax = 1 */
-        syscall               /* rax = write(edi, rsi, rdx) */
-	cmpl	%eax, %edx    /* edx(=read_count) - eax(=write_count) */
-	je	.loop         /* if equal, then goto .loop */
-                              /* else, fall-through */
+.write:
+  movl %eax, %edx # edx = eax(=read_count)
+  movq %rbp, %rsi # rsi = rbp(=write_buf)
+  movl %ebx, %edi # edi = 1
+  movl %ebx, %eax # eax = 1
+  syscall         # rax = write(edi, rsi, rdx);
+  cmpl %eax, %edx # edx - eax
+  je .loop        # if equal, then goto .loop
+                  # else, fall-through
 /*
-rax	rbx	rcx	rdx	rdi	rsi	rbp
-	1	rc	count		buf	write_buf
-rc/			/rc			
-					/wb	wb/
-				/1		
-/1						
-1/wc			rc/	1/	wb/	
-wc/			rc/			
+rax  rbx rcx   rdx rdi rsi rbp
+     1   rc    cnt     buf wb
+rc/            /rc
+                       /wb wb/
+     1/            /1
+/1   1/
+1/wc           rc/ 1/  wb/
+wc/            rc/
 */
 
-/*        .p2align 4*/
 .exit1:
-	movl	%ebx, %eax
-	jmp	.finish
+  movl %ebx, %eax
+  jmp .finish
 
 .exit0:
-	xorl	%eax, %eax
+  xorl %eax, %eax
 
 .finish:
-	popq	%rdx
-	popq	%rbx
-	popq	%rbp
+  popq %rdx
+  popq %rbx
+  popq %rbp
 
 .exit:
-        movl %eax,%edi
-        movb $60, %al
-        syscall
-	.size	_start, .-_start
+  movl %eax,%edi
+  movb $60, %al
+  syscall
+.size _start, .-_start
 /*
 }
 */
 
-	.globl	write_buf
-	.bss
-	.align 32
-	.type	write_buf, @object
-	.size	write_buf, 131072
+.globl write_buf
+.bss
+.align 32
+.type write_buf, @object
+.size write_buf, 131072
 write_buf:
-	.zero	131072
+.zero 131072
 
-
-	.globl	read_buf
-	.align 32
-	.type	read_buf, @object
-	.size	read_buf, 131072
+.globl read_buf
+.align 32
+.type read_buf, @object
+.size read_buf, 131072
 read_buf:
-	.zero	131072
+.zero 131072
 
-
-	.ident	"GCC: (Debian 12.2.0-14) 12.2.0"
-	.section	.note.GNU-stack,"",@progbits
+.section .note.GNU-stack,"",@progbits
 
