@@ -1,0 +1,91 @@
+.file "cat.c"
+.text
+.section .text.startup,"ax",@progbits
+
+/*
+int _start()
+{
+*/
+.globl _start
+.type  _start, @function
+
+_start:
+.init:
+  pushq %rbp
+  leaq read_buf(%rip), %rbp # rbp = read_buf
+  pushq %rbx
+  pushq %rcx
+
+.loop: # {
+.read:
+    movl $131072, %edx # edx = 131072
+    movq %rbp, %rsi    # rsi = rbp(=read_buf)
+    xorl %edi, %edi    # edi = edi
+    xorl %eax, %eax    # syscall_id = 0 (read)
+    syscall            # rax = read(edi, rsi, edx);
+
+    testl %eax, %eax   # eax == 0
+    je .exit0 # if true, then goto .exit0
+              # else, fall-through
+
+    xorl %ebx, %ebx    # ebx = 0
+
+.memcpy:
+.load:
+    movb 0(%rbp,%rbx), %dl # dl = rbp[rbx]
+.store:
+    movb %dl, (%rsi,%rbx)  # rsi[rbx] = dl
+.check:
+    incq %rbx       # ++rbx
+    cmpq %rax, %rbx # rbx - rax != 0
+    jne .memcpy     # if true, then goto .memcpy
+                    # else fall-through
+.write:
+    movl %ebx, %edx # edx = ebx(=read_count)
+    leaq write_buf(%rip), %rsi # rsi = write_buf
+    movl $1, %edi   # edi = 1
+    movl $1, %eax   # syscall_id = 1 (write)
+    syscall         # rax = write(edi, rsi, rdx);
+    cmpl %eax, %ebx # ebx - eax == 0
+    je .loop        # if true, then goto .loop
+                    # else fall-through
+# }
+
+.exit1:
+  movl $1, %eax
+  jmp .finish
+
+.exit0:
+  xorl %eax, %eax
+
+.finish:
+  popq %rdx
+  popq %rbx
+  popq %rbp
+
+.exit:
+  movl %eax, %edi # edi = eax
+  movl $60, %eax  # syscall_id = 60 (exit)
+  syscall         # exit(edi)
+.size _start, .-_start
+/*
+}
+*/
+
+.globl write_buf
+.bss
+.align 32
+.type write_buf, @object
+.size write_buf, 131072
+write_buf:
+.zero 131072
+
+.globl read_buf
+.align 32
+.type read_buf, @object
+.size read_buf, 131072
+read_buf:
+.zero 131072
+
+.section .note.GNU-stack,"",@progbits
+
